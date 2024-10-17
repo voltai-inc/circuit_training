@@ -108,4 +108,8 @@ ENV PYTHONPATH "${PYTHONPATH}:/dreamplace:/dreamplace/dreamplace"
 
 RUN $python_version -m pip freeze
 
+RUN dpkg --add-architecture i386
+RUN apt update
+RUN apt install -y libc6:i386 libncurses5:i386 libstdc++6:i386
+
 CMD ["/bin/bash"]
