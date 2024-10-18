@@ -243,6 +243,7 @@ def create_placement_cost(
     if not netlist_file:
         raise ValueError("netlist_file should be provided.")
 
+    init_placement = None  # TODO: Remove this line after fixing the issue.
     block_name = extract_attribute_from_comments(
         "Block", [init_placement, netlist_file]
     )
