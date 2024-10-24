@@ -38,6 +38,7 @@ NETLIST_FILE=./circuit_training/environment/test_data/toy_macro_stdcell/netlist.
 INIT_PLACEMENT=./circuit_training/environment/test_data/toy_macro_stdcell/initial.plc
 NUM_COLLECT_JOBS=20
 USE_GPU=True
+GLOBAL_SEED=333
 
 # Internal variables.
 TIME_WAITING=0

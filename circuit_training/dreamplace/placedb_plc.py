@@ -28,7 +28,6 @@ class PlacedbPlc(object):
         self.params = params
         self.converter = plc_converter.PlcConverter()
         self.placedb = self.converter.convert(plc, hard_macro_order)
-        print("DEBUG", self.params)
         self.placedb(self.params)
 
     def read_macro_from_plc(self, plc, macro_index):

@@ -34,9 +34,9 @@ ROOT_DIR=./logs/run_00
 SCRIPT_LOGS=""
 REVERB_PORT=8008
 REVERB_SERVER_IP=127.0.0.1
-NETLIST_FILE=./circuit_training/environment/test_data/toy_macro_stdcell/netlist.pb.txt
-INIT_PLACEMENT=./circuit_training/environment/test_data/toy_macro_stdcell/initial.plc
-NUM_COLLECT_JOBS=20
+NETLIST_FILE=./circuit_training/environment/test_data/ariane/netlist.pb.txt
+INIT_PLACEMENT=./circuit_training/environment/test_data/ariane/initial.plc
+NUM_COLLECT_JOBS=40
 USE_GPU=True
 
 # Internal variables.
@@ -176,12 +176,8 @@ start_background_train "$$" python3.9 -m circuit_training.learning.train_ppo \
   --replay_buffer_server_address=${REVERB_SERVER} \
   --variable_container_server_address=${REVERB_SERVER} \
   --std_cell_placer_mode=dreamplace \
-  --sequence_length=3 \
-  --gin_bindings='train.per_replica_batch_size=64' \
-  --gin_bindings='train.num_iterations=200' \
-  --gin_bindings='train.num_episodes_per_iteration=32' \
-  --gin_bindings='CircuittrainingPPOLearner.summary_interval=12' \
-  --gin_bindings='CircuitPPOAgent.debug_summaries=True' \
+  --sequence_length=134 \
+  --gin_bindings='train.num_iterations=200'\
   --gin_bindings='train.num_epochs=1' \
   --netlist_file=${NETLIST_FILE} \
   --init_placement=${INIT_PLACEMENT} \

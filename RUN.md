@@ -2,9 +2,8 @@ Run the docker (with GPU):
 
 ``` docker build --pull --no-cache --tag circuit_training_gpu:core --build-arg tf_agents_version=tf-agents[reverb] --build-arg dreamplace_version=dreamplace_20231214_c5a83e5_python3.9.tar.gz --build-arg placement_cost_binary=plc_wrapper_main_0.0.4 -f tools/docker/ubuntu_circuit_training_gpu tools/docker/ ``` 
 
-``` docker build --pull --no-cache --tag circuit_training_gpu:core --build-arg tf_agents_version=tf-agents[reverb] --build-arg dreamplace_version=dreamplace_20231214_c5a83e5_python3.9.tar.gz --build-arg placement_cost_binary=plc_wrapper_main_0.0.4 --build-arg base_image=nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04 -f tools/docker/ubuntu_circuit_training tools/docker/ ```  
+``` docker run --gpus all -d -v "$(pwd)":/app -w /app --name my_container circuit_training_gpu:core tail -f /dev/null ```  
 
-``` docker run --gpus all --rm -it -v "$(pwd)":/app -w /app circuit_training_gpu:core /bin/bash ```  
 
 Run the docker (without GPU):  
 ``` docker build --pull --no-cache --tag circuit_training:core --build-arg tf_agents_version=tf-agents[reverb] --build-arg dreamplace_version=dreamplace_20231214_c5a83e5_python3.9.tar.gz --build-arg placement_cost_binary=plc_wrapper_main_0.0.4 -f tools/docker/ubuntu_circuit_training tools/docker/ ```  
@@ -13,6 +12,8 @@ Run the docker (without GPU):
 Run test and activate env:  
 ``` tox -e py39-stable -- circuit_training/grouping/grouping_test.py ```
 ``` source .tox/py39-stable/bin/activate ```  
+``` python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))" ```
+
 
 Run the test:  
 ``` bash tools/e2e_smoke_test.sh --root_dir /app/logs ```  

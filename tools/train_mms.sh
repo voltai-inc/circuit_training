@@ -30,16 +30,15 @@
 set -e
 
 # Flags
-ROOT_DIR=./logs/run_train
+ROOT_DIR=./logs/run_00
 SCRIPT_LOGS=""
 REVERB_PORT=8008
 REVERB_SERVER_IP=127.0.0.1
-# NETLIST_FILE=./circuit_training/environment/test_data/macro_tiles_10x10/netlist.pb.txt
-# INIT_PLACEMENT=./circuit_training/environment/test_data/macro_tiles_10x10/initial.plc
 NETLIST_FILE=./data/mms/adaptec1_new.pb.txt
 INIT_PLACEMENT=./data/mms/initial.plc
-NUM_COLLECT_JOBS=4
+NUM_COLLECT_JOBS=40
 USE_GPU=True
+GLOBAL_SEED=333
 
 # Internal variables.
 TIME_WAITING=0
@@ -140,7 +139,13 @@ start_background_collect() {
 start_background_train() {
   local -ir pid="$1"
   shift
-  "$@" || kill -SIGUSR2 -- "$pid"
+  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 "$@" || kill -SIGUSR2 -- "$pid"
+}
+
+start_eval() {
+  local -ir pid="$1"
+  shift
+  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 "$@" || kill -SIGEVL -- "$pid"
 }
 
 REVERB_SERVER="${REVERB_SERVER_IP}:${REVERB_PORT}"
@@ -172,10 +177,9 @@ start_background_train "$$" python3.9 -m circuit_training.learning.train_ppo \
   --replay_buffer_server_address=${REVERB_SERVER} \
   --variable_container_server_address=${REVERB_SERVER} \
   --std_cell_placer_mode=dreamplace \
-  --gin_bindings='train.per_replica_batch_size=5' \
-  --gin_bindings='train.num_iterations=1' \
-  --gin_bindings='train.num_episodes_per_iteration=5' \
-  --gin_bindings='train.num_epochs=4' \
+  --sequence_length=134 \
+  --gin_bindings='train.num_iterations=200'\
+  --gin_bindings='train.num_epochs=1' \
   --netlist_file=${NETLIST_FILE} \
   --init_placement=${INIT_PLACEMENT} \
   --use_gpu=${USE_GPU} &
@@ -189,3 +193,13 @@ do
   sleep $SLEEP_TIME
   TIME_WAITING=$((${TIME_WAITING} + ${SLEEP_TIME}))
 done
+
+
+start_eval "$$" python3.9 -m circuit_training.learning.eval \
+  --root_dir=${ROOT_DIR} \
+  --std_cell_placer_mode=dreamplace \
+  --variable_container_server_address=${REVERB_SERVER} \
+  --netlist_file=${NETLIST_FILE} \
+  --init_placement=${INIT_PLACEMENT} \
+  --global_seed=${GLOBAL_SEED} \
+  --output_placement_save_dir=./data/mms/
